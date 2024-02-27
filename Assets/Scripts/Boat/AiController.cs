@@ -74,16 +74,26 @@ namespace BoatAttack
         // Update is called once per frame
         private void FixedUpdate ()
         {
-            if (_pathPoint == null || _pathPoint.Length <= _curPoint) return;
-            //\\\\\\\\Get angle to the destination and the side
+            StartCoroutine(UpdateNavigation());
+        }
+
+        private IEnumerator UpdateNavigation()
+        {
+            if (_pathPoint == null || _pathPoint.Length <= _curPoint)
+            yield break;
+
+            // Get angle to the destination and the side
             var normDir = _pathPoint[_curPoint] - transform.position;
             normDir = normDir.normalized;
             var dot = Vector3.Dot(normDir, transform.forward);
-            _targetSide = Vector3.Cross(transform.forward, normDir).y;//positive on right side, negative on left side
-
+            _targetSide = Vector3.Cross(transform.forward, normDir).y; // positive on right side, negative on left side
+    
             engine.Turn(Mathf.Clamp(_targetSide, -1.0f, 1.0f));
             engine.Accelerate(dot > 0 ? 1f : 0.25f);
+
+            yield return new WaitForSeconds(0.1f); // Waits for 0.1 seconds
         }
+        
 
         private void AssignWp(WaypointGroup.Waypoint wp)
         {
